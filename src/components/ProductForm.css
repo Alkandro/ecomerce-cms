@@ -1,0 +1,59 @@
+.product-form {
+  margin: auto;
+  max-width: 500px;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-title {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.product-form input,
+.product-form textarea {
+  padding: 10px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+textarea {
+  resize: vertical;
+}
+.image-preview {
+  width: 100px;
+  height: auto;
+  margin-top: 10px;
+  border-radius: 6px;
+}
+
+
+.submit-btn {
+  background-color: #16222b;
+  color: white;
+  padding: 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.submit-btn:hover {
+  background-color: #0d1218;
+}

@@ -1,0 +1,59 @@
+.layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden; /* <- evita scroll general */
+}
+  
+.sidebar {
+  width: 220px;
+  background-color: #16222b;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  flex-shrink: 0;
+  overflow-y: auto; /* opcional si el sidebar necesita scroll propio */
+}
+  .logo {
+    font-size: 20px;
+    margin-bottom: 30px;
+    font-weight: bold;
+  }
+  
+  .nav a {
+    color: white;
+    text-decoration: none;
+    margin-bottom: 15px;
+    display: block;
+    font-size: 16px;
+    transition: 0.3s;
+  }
+  
+  .nav a:hover {
+    color: #00bcd4;
+  }
+  
+  .main-content {
+    flex: 1;
+    background-color: #f4f6f8;
+    padding: 40px;
+    overflow-y: auto;
+  }
+  
+  @media (max-width: 768px) {
+    .layout {
+      flex-direction: column;
+    }
+    .sidebar {
+      width: 100%;
+      flex-direction: row;
+      justify-content: space-around;
+    }
+    .nav a {
+      margin: 0;
+    }
+    .main-content {
+      padding: 20px;
+    }
+  }
+  

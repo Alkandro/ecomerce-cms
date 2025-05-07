@@ -1,0 +1,18 @@
+.products-page {
+  padding: 20px;
+}
+
+.form-fixed {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 40px; /* 👈 da espacio antes de la lista */
+  position: relative;
+}
+
+.product-list-section {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
