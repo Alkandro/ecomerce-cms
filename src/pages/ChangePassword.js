@@ -99,7 +99,7 @@ function ChangePassword() {
 
         <button
           type="button"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/products")}
           style={{ marginTop: "10px", backgroundColor: "#555" }}
         >
           Cancelar

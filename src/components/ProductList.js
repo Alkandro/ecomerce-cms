@@ -25,9 +25,33 @@ function ProductList() {
   };
 
   const toggleAvailability = async (id, current) => {
-    await updateDoc(doc(db, "products", id), { available: !current });
-    fetchProducts();
+    const newAvailability = !current; // Calcula el nuevo valor booleano
+
+    // Determina el nuevo valor de la cadena de texto 'status'
+    const newStatus = newAvailability ? "disponible" : "no disponible";
+
+    try {
+      // Actualiza AMBOS campos en Firestore
+      await updateDoc(doc(db, "products", id), {
+        available: newAvailability,
+        status: newStatus
+      });
+      console.log("Disponibilidad y estado actualizados con éxito para el producto:", id);
+      fetchProducts(); // Vuelve a obtener los datos después de actualizar
+    } catch (error) {
+      console.error("Error al cambiar la disponibilidad y estado:", error);
+      alert("Hubo un error al actualizar la disponibilidad.");
+    }
   };
+
+  // Mantén fetchProducts en el useEffect para la carga inicial
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // Podrías considerar volver a obtener los datos periódicamente o usar un listener en tiempo real
+  // si varios usuarios pueden modificar los datos concurrentemente.
+
   const handleUpdate = async (product) => {
     const { id, ...rest } = product;
     try {
