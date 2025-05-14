@@ -12,6 +12,9 @@
   cursor: pointer;
   transition: 0.3s;
   position: relative;
+  display: flex; /* Convertir el card en un contenedor Flexbox */
+  flex-direction: column; /* Alinear los elementos internos verticalmente */
+  align-items: center; /* Centrar horizontalmente los elementos internos */
 }
 
 .product-card:hover {
@@ -27,9 +30,10 @@
 .card-image {
   width: 100%;
   height: 150px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 6px;
   margin-bottom: 10px;
+  /* Elimina las propiedades de Flexbox de aquí */
 }
 .card-footer {
   display: flex;
@@ -98,16 +102,39 @@
   background-color: #0f1b24;
 }
 
+/* Estilos base para ambos badges */
+.availability-badge {
+  padding: 8px 12px; /* Ajusta el padding para cambiar el tamaño del rectángulo (arriba/abajo, izquierda/derecha) */
+  font-size: 14px;    /* Ajusta el tamaño de la fuente */
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Añade una transición suave al color de fondo */
+}
+
+/* Estilos específicos para "Disponible" */
 .available {
   background-color: #e0f7fa;
   color: #00796b;
   border: 1px solid #00796b;
 }
 
+/* Estilos específicos para "No disponible" */
 .unavailable {
   background-color: #ffebee;
   color: #c62828;
   border: 1px solid #c62828;
+}
+
+/* Opcional: estilos al pasar el ratón para indicar interactividad */
+.available:hover {
+  background-color: #b2dfdb;
+}
+
+.unavailable:hover {
+  background-color: #ffcdd2;
 }
 
 
@@ -116,10 +143,14 @@
   border: none;
   color: red;
   cursor: pointer;
+  margin-left: 100px;
 }
 
 .delete-btn:hover {
-  background-color: #d32f2f;
+  background-color: rgba(211, 47, 47, 0.2);
+}
+.delete-btn:active {
+  background-color: transparent; 
 }
 
 select {

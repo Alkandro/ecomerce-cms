@@ -8,6 +8,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import "./ProductList.css";
+import { MdDelete } from 'react-icons/md';
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -20,8 +21,11 @@ function ProductList() {
   };
 
   const handleDelete = async (id) => {
-    await deleteDoc(doc(db, "products", id));
-    fetchProducts();
+    const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este producto?");
+    if (confirmDelete) {
+      await deleteDoc(doc(db, "products", id));
+      fetchProducts();
+    }
   };
 
   const toggleAvailability = async (id, current) => {
@@ -96,7 +100,7 @@ function ProductList() {
               }}
               className="delete-btn"
             >
-              Eliminar
+              <MdDelete size={30} color="red" />
             </button>
           </div>
         </div>
