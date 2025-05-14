@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import ChangePassword from "./pages/ChangePassword";
 import PrivateRoute from "./components/PrivateRoute";
 import NotAuthorized from "./pages/NotAuthorized";
+import Banners from "./pages/Banners";
 import "./App.css";
 
 // Componente auxiliar para redirigir desde la raíz
@@ -50,6 +51,14 @@ function App() {
           element={
             <PrivateRoute>
               <Products />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/banners"
+          element={
+            <PrivateRoute>
+              <Banners />
             </PrivateRoute>
           }
         />
