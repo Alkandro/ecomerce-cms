@@ -97,6 +97,7 @@ function Users() {
               <th style={styles.th}>Nickname</th>
               <th style={styles.th}>Email</th>
               <th style={styles.th}>Teléfono</th>
+              <th style={styles.th}>Genero</th>
               <th style={styles.th}>Estado</th>
               <th style={styles.th}>Direcciones</th>
               <th style={styles.th}>Productos Favoritos</th>
@@ -109,16 +110,17 @@ function Users() {
                   {user.firstName || "N/A"}{" "}
                   {user.lastName || ""}
                 </td>
-                <td style={styles.td}>{user.displayName || "N/A"}</td> {/* Usamos displayName como nickname */}
+                <td style={styles.td}>{user.nickname || "N/A"}</td> {/* Usamos displayName como nickname */}
                 <td style={styles.td}>{user.email || "N/A"}</td>
                 <td style={styles.td}>{user.phoneNumber || "N/A"}</td>
+                <td style={styles.td}>{user.gender || "N/A"}</td>
                 <td style={styles.td}>{isOnline(user.updatedAt)}</td> {/* Usamos updatedAt para el estado */}
                 <td style={styles.td}>
                   {user.addresses && user.addresses.length > 0 ? (
                     <ul style={styles.ul}>
                       {user.addresses.map((addr, index) => (
                         <li key={index} style={styles.li}>
-                          <strong>Alias:</strong> {addr.alias || "N/A"} <br />
+                          <strong></strong> {addr.alias || "N/A"} <br />
                           {addr.street || "N/A"},{" "}
                           {addr.apartment ? addr.apartment + ", " : ""}{" "}
                           {addr.city || "N/A"}, {addr.state || "N/A"}{" "}
