@@ -2,13 +2,14 @@
 import React from "react";
 import MainLayout from "../layouts/MainLayout";
 import BannerForm from "../components/BannerForm";
+import "./Banners.css";
 
 function Banners() {
   return (
     <MainLayout>
       <div className="banners-center">
-        <h2>Administrar Banners</h2>
-        <h3>Agregar nuevo banner</h3>
+        <h2>Administrador de Banners</h2>
+
         <BannerForm onAdd={() => window.location.reload()} />
         {/* Aquí podrías agregar una lista de banners existentes más adelante */}
       </div>

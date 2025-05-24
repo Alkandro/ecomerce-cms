@@ -5,6 +5,7 @@ import { storage, db } from '../firebase/config';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, doc, getDocs, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 
+
 const BannerForm = () => {
     const [banners, setBanners] = useState([]);
     const [products, setProducts] = useState([]);
@@ -14,6 +15,8 @@ const BannerForm = () => {
         fetchBanners();
         fetchProducts();
     }, []);
+
+   
 
     const fetchBanners = async () => {
         try {

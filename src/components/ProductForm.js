@@ -1,9 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 import "./ProductForm.css";
+import { auth } from '../firebase/config';
 
 function ProductForm({ onAdd }) {
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+        if (user) {
+            console.log("ProductForm: Usuario autenticado con UID:", user.uid);
+        } else {
+            console.log("ProductForm: USUARIO NO AUTENTICADO.");
+        }
+    });
+    return () => unsubscribe();
+}, []);
+
   const [product, setProduct] = useState({
     name: "",
     price: "",
@@ -14,6 +27,7 @@ function ProductForm({ onAdd }) {
   });
   const [preview, setPreview] = useState(null);
 
+  
   const handleChange = (e) => {
     setProduct({ ...product, [e.target.name]: e.target.value });
   };
