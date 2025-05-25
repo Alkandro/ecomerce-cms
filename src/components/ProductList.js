@@ -6,13 +6,15 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../firebase/config";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage"; // Importar de storage
+import { db, auth, storage } from "../firebase/config"; // Importar storage
 import "./ProductList.css";
 import { MdDelete } from 'react-icons/md';
 
 function ProductList() {
   const [products, setProducts] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [selectedFileForEdit, setSelectedFileForEdit] = useState(null); // Para el archivo de edición
 
   const fetchProducts = async () => {
     const snapshot = await getDocs(collection(db, "products"));
@@ -20,56 +22,94 @@ function ProductList() {
     setProducts(list);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, imageUrl) => { // Recibe la URL de la imagen para borrarla de Storage
     const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este producto?");
     if (confirmDelete) {
-      await deleteDoc(doc(db, "products", id));
-      fetchProducts();
+      try {
+        // Opcional: Eliminar la imagen de Storage
+        if (imageUrl && (imageUrl.startsWith("gs://") || imageUrl.startsWith("http"))) {
+          const imageRef = ref(storage, imageUrl);
+          await deleteObject(imageRef).catch(error => {
+            // Ignorar errores si el archivo no existe (ya fue borrado, etc.)
+            console.warn("Error al borrar imagen de Storage (puede que no exista):", error);
+          });
+        }
+        
+        await deleteDoc(doc(db, "products", id));
+        fetchProducts();
+      } catch (error) {
+        console.error("Error al eliminar producto:", error);
+        alert("Hubo un error al eliminar el producto: " + error.message);
+      }
     }
   };
 
   const toggleAvailability = async (id, current) => {
-    const newAvailability = !current; // Calcula el nuevo valor booleano
-
-    // Determina el nuevo valor de la cadena de texto 'status'
+    const newAvailability = !current; 
     const newStatus = newAvailability ? "disponible" : "no disponible";
 
     try {
-      // Actualiza AMBOS campos en Firestore
       await updateDoc(doc(db, "products", id), {
         available: newAvailability,
         status: newStatus
       });
       console.log("Disponibilidad y estado actualizados con éxito para el producto:", id);
-      fetchProducts(); // Vuelve a obtener los datos después de actualizar
+      fetchProducts(); 
     } catch (error) {
       console.error("Error al cambiar la disponibilidad y estado:", error);
       alert("Hubo un error al actualizar la disponibilidad.");
     }
   };
 
-  // Mantén fetchProducts en el useEffect para la carga inicial
   useEffect(() => {
     fetchProducts();
   }, []);
-
-  // Podrías considerar volver a obtener los datos periódicamente o usar un listener en tiempo real
-  // si varios usuarios pueden modificar los datos concurrentemente.
 
   const handleUpdate = async (product) => {
     const { id, ...rest } = product;
     try {
-      await updateDoc(doc(db, "products", id), rest);
+      let updatedImageUrl = rest.image; // Mantener la imagen actual por defecto
+
+      // Si se seleccionó un nuevo archivo para editar
+      if (selectedFileForEdit) {
+        // Opcional: Borrar la imagen antigua de Storage si existe
+        if (product.image && (product.image.startsWith("gs://") || product.image.startsWith("http"))) {
+            const oldImageRef = ref(storage, product.image);
+            await deleteObject(oldImageRef).catch(error => {
+                console.warn("Error al borrar imagen antigua de Storage (puede que no exista):", error);
+            });
+        }
+
+        // Subir la nueva imagen a Cloud Storage
+        const user = auth.currentUser;
+        if (!user) {
+            alert("Debes estar autenticado para actualizar la imagen.");
+            return;
+        }
+        const storageRef = ref(storage, `product_images/${user.uid}/${Date.now()}_${selectedFileForEdit.name}`);
+        const uploadResult = await uploadBytes(storageRef, selectedFileForEdit);
+        updatedImageUrl = await getDownloadURL(uploadResult.ref);
+      }
+
+      // Prepara los datos para la actualización
+      const dataToUpdate = {
+        ...rest,
+        price: parseFloat(rest.price) || 0,
+        discount: parseFloat(rest.discount) || 0,
+        image: updatedImageUrl, // Usa la nueva URL si se subió, o la existente
+        tags: Array.isArray(rest.tags) ? rest.tags : rest.tags.split(",").map(tag => tag.trim()).filter(tag => tag !== "")
+      };
+
+      await updateDoc(doc(db, "products", id), dataToUpdate);
       fetchProducts();
       setSelected(null); // cerrar modal al guardar
+      setSelectedFileForEdit(null); // Limpiar el archivo de edición
     } catch (err) {
       console.error("Error al actualizar producto:", err);
+      alert("Hubo un error al actualizar el producto: " + err.message);
     }
   };
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
 
   return (
     <div className="product-grid">
@@ -96,7 +136,7 @@ function ProductList() {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                handleDelete(p.id);
+                handleDelete(p.id, p.image); // Pasar la URL de la imagen al borrar
               }}
               className="delete-btn"
             >
@@ -107,11 +147,11 @@ function ProductList() {
       ))}
 
       {selected && (
-        <div className="modal-overlay" onClick={() => setSelected(null)}>
+        <div className="modal-overlay" onClick={() => { setSelected(null); setSelectedFileForEdit(null); }}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="image-edit">
               <img
-                src={selected.image}
+                src={selectedFileForEdit ? URL.createObjectURL(selectedFileForEdit) : selected.image} // Mostrar la nueva previa o la existente
                 alt={selected.name}
                 className="modal-image"
               />
@@ -121,11 +161,7 @@ function ProductList() {
                 onChange={(e) => {
                   const file = e.target.files[0];
                   if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setSelected({ ...selected, image: reader.result });
-                    };
-                    reader.readAsDataURL(file);
+                    setSelectedFileForEdit(file); // Guardar el objeto File para la subida
                   }
                 }}
               />
@@ -142,12 +178,17 @@ function ProductList() {
               onChange={(e) =>
                 setSelected({ ...selected, price: e.target.value })
               }
+              type="number" // Asegurar que sea tipo número
+              step="0.01"
             />
             <input
               value={selected.discount}
               onChange={(e) =>
                 setSelected({ ...selected, discount: e.target.value })
               }
+              type="number" // Asegurar que sea tipo número
+              min="0"
+              max="100"
             />
             <textarea
               value={selected.description}
@@ -168,7 +209,7 @@ function ProductList() {
               <option value="false">No disponible</option>
             </select>
             <button onClick={() => handleUpdate(selected)}>Guardar</button>
-            <button onClick={() => setSelected(null)}>Cancelar</button>
+            <button onClick={() => { setSelected(null); setSelectedFileForEdit(null); }}>Cancelar</button>
           </div>
         </div>
       )}
