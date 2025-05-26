@@ -1,4 +1,3 @@
-// src/components/Sidebar.js
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
@@ -22,12 +21,14 @@ function Sidebar() {
             <Link to="/products">Products</Link>
           </li>
           <li className={location.pathname === "/dashboard" ? "active" : ""}>
-            {" "}
-            {/* Cambia "/" por "/dashboard" */}
             <Link to="/dashboard">Agregar productos</Link>
           </li>
           <li className={location.pathname === "/banners" ? "active" : ""}>
             <Link to="/banners">Banners</Link>
+          </li>
+          {/* Nuevo elemento para "Pedidos" */}
+          <li className={location.pathname === "/orders" ? "active" : ""}>
+            <Link to="/orders">Pedidos</Link>
           </li>
           <li className={location.pathname === "/users" ? "active" : ""}>
             <Link to="/users">Users</Link>

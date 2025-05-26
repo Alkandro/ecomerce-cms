@@ -8,21 +8,17 @@ import ChangePassword from "./pages/ChangePassword";
 import PrivateRoute from "./components/PrivateRoute";
 import NotAuthorized from "./pages/NotAuthorized";
 import Banners from "./pages/Banners";
+// ¡Importa el nuevo componente para la pantalla de Pedidos!
+import Orders from "./pages/Orders"; // Asumo que lo llamarás Orders.js y estará en la carpeta pages
 import "./App.css";
 
 // Componente auxiliar para redirigir desde la raíz
 function RootRedirect() {
-  // Aquí puedes añadir la lógica para comprobar si el usuario está autenticado
-  // Basándonos en tu Login.js, asumimos que guardas el usuario en localStorage
   const isAuthenticated = localStorage.getItem("user") !== null;
 
   if (isAuthenticated) {
-    // Si está autenticado, redirige a /products
     return <Navigate to="/products" replace />;
   } else {
-    // Si no está autenticado, podrías redirigir a login o dejar que PrivateRoute lo haga
-    // En este caso, PrivateRoute en la ruta / probablemente ya redirige a /login
-    // Pero para mayor claridad, podrías redirigir explícitamente aquí si lo prefieres
     return <Navigate to="/login" replace />;
   }
 }
@@ -34,12 +30,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/not-authorized" element={<NotAuthorized />} />
 
-        {/* Usa el componente RootRedirect para la ruta raíz */}
         <Route path="/" element={<RootRedirect />} />
 
         {/* Las rutas privadas ahora solo necesitan PrivateRoute */}
         <Route
-          path="/dashboard" // Cambié la ruta del dashboard para que no sea la raíz
+          path="/dashboard"
           element={
             <PrivateRoute>
               <Dashboard />
@@ -59,6 +54,15 @@ function App() {
           element={
             <PrivateRoute>
               <Banners />
+            </PrivateRoute>
+          }
+        />
+        {/* ¡NUEVA RUTA PARA PEDIDOS! */}
+        <Route
+          path="/orders"
+          element={
+            <PrivateRoute>
+              <Orders /> {/* Asegúrate de que este es el nombre de tu componente */}
             </PrivateRoute>
           }
         />
