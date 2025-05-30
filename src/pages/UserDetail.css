@@ -1,0 +1,236 @@
+.user-detail-container {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 30px auto;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+  
+  .user-detail-loading-error {
+    text-align: center;
+    margin-top: 50px;
+  }
+  
+  .user-detail-error {
+    color: #dc3545;
+  }
+  
+  .user-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 30px;
+    position: relative;
+  }
+  
+  .user-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #f0f2f5;
+  }
+  
+  .user-name {
+    font-size: 2.2em;
+    margin: 0;
+    color: #333;
+    font-weight: 700;
+  }
+  
+  .user-nickname {
+    font-size: 1.1em;
+    color: #777;
+    margin-top: 5px;
+  }
+  
+  .user-status {
+    font-size: 1em;
+    font-weight: bold;
+    margin-top: 8px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block;
+  }
+  
+  .user-status.online {
+    background-color: #e6ffe6;
+    color: #28a745;
+  }
+  
+  .user-status.offline {
+    background-color: #ffe6e6;
+    color: #dc3545;
+  }
+  
+  .send-notification-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    margin-left: auto; /* Empuja el botón a la derecha */
+  }
+  
+  .send-notification-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .user-detail-section {
+    margin-bottom: 40px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .user-detail-section h3 {
+    font-size: 1.8em;
+    color: #444;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+  }
+  
+  .user-detail-section p {
+    font-size: 1.1em;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  
+  .user-detail-section strong {
+    color: #333;
+  }
+  
+  /* Direcciones */
+  .addresses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  
+  .address-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .address-card h4 {
+    margin-top: 0;
+    color: #333;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+  }
+  
+  .address-card p {
+    font-size: 0.95em;
+    color: #666;
+    margin-bottom: 5px;
+  }
+  
+  /* Pedidos */
+  .orders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .order-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .order-card h4 {
+    margin-top: 0;
+    color: #333;
+    font-size: 1.3em;
+    margin-bottom: 15px;
+  }
+  
+  .order-card p {
+    font-size: 0.95em;
+    color: #666;
+    margin-bottom: 8px;
+  }
+  
+  .order-items ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+    border-top: 1px dashed #eee;
+    padding-top: 10px;
+  }
+  
+  .order-items li {
+    margin-bottom: 5px;
+    color: #555;
+  }
+  
+  /* Colores de estado de pedido */
+  .order-status-pendiente { color: #ffc107; font-weight: bold; } /* Amarillo */
+  .order-status-en-proceso { color: #17a2b8; font-weight: bold; } /* Azul claro */
+  .order-status-enviado { color: #007bff; font-weight: bold; } /* Azul */
+  .order-status-entregado { color: #28a745; font-weight: bold; } /* Verde */
+  .order-status-cancelado { color: #dc3545; font-weight: bold; } /* Rojo */
+  .order-status-devuelto { color: #6c757d; font-weight: bold; } /* Gris */
+  
+  
+  /* Wishlist */
+  .wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    justify-items: center;
+  }
+  
+  .wishlist-item-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 180px; /* Limita el ancho de la tarjeta */
+  }
+  
+  .wishlist-item-image {
+    width: 100%;
+    height: 120px;
+    object-fit: contain;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: #f5f5f5; /* Fondo para imágenes transparentes */
+  }
+  
+  .wishlist-item-name {
+    font-size: 0.95em;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limita a 2 líneas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 2.5em; /* Altura mínima para 2 líneas */
+  }
+  
+  .wishlist-item-price {
+    font-size: 1em;
+    color: #007bff;
+    font-weight: bold;
+  }

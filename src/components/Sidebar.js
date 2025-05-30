@@ -1,3 +1,4 @@
+// src/components/Sidebar.js
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
@@ -32,6 +33,10 @@ function Sidebar() {
           </li>
           <li className={location.pathname === "/users" ? "active" : ""}>
             <Link to="/users">Users</Link>
+          </li>
+          {/* ¡Nuevo enlace para Términos y Condiciones! */}
+          <li className={location.pathname === "/terms-conditions" ? "active" : ""}>
+            <Link to="/terms-conditions">Términos y Condiciones</Link>
           </li>
           <li
             className={location.pathname === "/change-password" ? "active" : ""}

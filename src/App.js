@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Users from "./pages/Users";
@@ -8,8 +13,10 @@ import ChangePassword from "./pages/ChangePassword";
 import PrivateRoute from "./components/PrivateRoute";
 import NotAuthorized from "./pages/NotAuthorized";
 import Banners from "./pages/Banners";
-// ¡Importa el nuevo componente para la pantalla de Pedidos!
-import Orders from "./pages/Orders"; // Asumo que lo llamarás Orders.js y estará en la carpeta pages
+import Orders from "./pages/Orders";
+// ¡Importa el nuevo componente para la pantalla de Términos y Condiciones!
+import TermsConditionsScreen from "./components/TermsConditionsScreen"; // Asegúrate de que esta ruta sea correcta
+import UserDetail from "./pages/UserDetail";
 import "./App.css";
 
 // Componente auxiliar para redirigir desde la raíz
@@ -57,12 +64,11 @@ function App() {
             </PrivateRoute>
           }
         />
-        {/* ¡NUEVA RUTA PARA PEDIDOS! */}
         <Route
           path="/orders"
           element={
             <PrivateRoute>
-              <Orders /> {/* Asegúrate de que este es el nombre de tu componente */}
+              <Orders />
             </PrivateRoute>
           }
         />
@@ -74,11 +80,22 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route path="/users/:userId" element={<UserDetail />} />
         <Route
           path="/change-password"
           element={
             <PrivateRoute>
               <ChangePassword />
+            </PrivateRoute>
+          }
+        />
+        {/* ¡NUEVA RUTA PARA TÉRMINOS Y CONDICIONES! */}
+        <Route
+          path="/terms-conditions"
+          element={
+            <PrivateRoute>
+              <TermsConditionsScreen />{" "}
+              {/* Asegúrate de que este es el nombre de tu componente */}
             </PrivateRoute>
           }
         />

@@ -1,0 +1,73 @@
+.users-loading-error {
+    text-align: center;
+    margin-top: 50px;
+  }
+  
+  .users-error {
+    color: red;
+  }
+  
+  .users-title {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+  }
+  
+  .users-table-container {
+    overflow-x: auto;
+    margin: 0 auto;
+    max-width: 90%;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+  }
+  
+  .users-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .users-table th,
+  .users-table td {
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .users-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    font-size: 0.9em;
+  }
+  
+  .users-table-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .users-table-row:hover {
+    background-color: #f0f8ff; /* Color al pasar el ratón */
+  }
+  
+  .users-table-row:last-child td {
+    border-bottom: none;
+  }
+  
+  /* Estilos para estado online/offline */
+  .users-table-row td:nth-child(4) { /* Aplica a la columna de estado */
+    font-weight: bold;
+  }
+  
+  .users-table-row td:nth-child(4):contains("En línea") {
+    color: #28a745; /* Verde para online */
+  }
+  
+  .users-table-row td:nth-child(4):contains("Desconectado") {
+    color: #dc3545; /* Rojo para offline */
+  }
+  
+  /* Puedes necesitar un poco de JS para ":contains" o simplemente aplicar la clase directamente en el JSX */
+  /* Alternativa en JSX para aplicar color: */
+  /* <td style={{ color: isOnline(user.updatedAt) === "En línea" ? "#28a745" : "#dc3545" }}>{isOnline(user.updatedAt)}</td> */
