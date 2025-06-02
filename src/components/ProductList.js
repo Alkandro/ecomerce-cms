@@ -6,57 +6,79 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage"; // Importar de storage
-import { db, auth, storage } from "../firebase/config"; // Importar storage
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
+import { db, auth, storage } from "../firebase/config";
 import "./ProductList.css";
-import { MdDelete } from 'react-icons/md';
+import { MdDelete } from "react-icons/md";
 
 function ProductList() {
   const [products, setProducts] = useState([]);
   const [selected, setSelected] = useState(null);
-  const [selectedFileForEdit, setSelectedFileForEdit] = useState(null); // Para el archivo de edición
+  const [selectedFilesForEdit, setSelectedFilesForEdit] = useState([]);
 
+  // 1) Traer todos los productos
   const fetchProducts = async () => {
     const snapshot = await getDocs(collection(db, "products"));
-    const list = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const list = snapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...docSnap.data(),
+    }));
     setProducts(list);
   };
 
-  const handleDelete = async (id, imageUrl) => { // Recibe la URL de la imagen para borrarla de Storage
-    const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este producto?");
-    if (confirmDelete) {
-      try {
-        // Opcional: Eliminar la imagen de Storage
-        if (imageUrl && (imageUrl.startsWith("gs://") || imageUrl.startsWith("http"))) {
-          const imageRef = ref(storage, imageUrl);
-          await deleteObject(imageRef).catch(error => {
-            // Ignorar errores si el archivo no existe (ya fue borrado, etc.)
-            console.warn("Error al borrar imagen de Storage (puede que no exista):", error);
-          });
-        }
-        
-        await deleteDoc(doc(db, "products", id));
-        fetchProducts();
-      } catch (error) {
-        console.error("Error al eliminar producto:", error);
-        alert("Hubo un error al eliminar el producto: " + error.message);
+  // 2) Borrar producto y todas sus imágenes
+  const handleDelete = async (id, imagesArray) => {
+    const confirmDelete = window.confirm(
+      "¿Estás seguro de que deseas eliminar este producto?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      if (Array.isArray(imagesArray) && imagesArray.length > 0) {
+        const deletePromises = imagesArray.map((url) => {
+          if (
+            typeof url === "string" &&
+            (url.startsWith("gs://") || url.startsWith("http"))
+          ) {
+            const imageRef = ref(storage, url);
+            return deleteObject(imageRef).catch((err) => {
+              console.warn(
+                "No se pudo borrar de Storage (quizá ya no existe):",
+                err
+              );
+              return null;
+            });
+          }
+          return Promise.resolve();
+        });
+        await Promise.all(deletePromises);
       }
+      await deleteDoc(doc(db, "products", id));
+      fetchProducts();
+    } catch (error) {
+      console.error("Error al eliminar producto:", error);
+      alert("Hubo un error al eliminar el producto: " + error.message);
     }
   };
 
+  // 3) Alternar disponibilidad
   const toggleAvailability = async (id, current) => {
-    const newAvailability = !current; 
+    const newAvailability = !current;
     const newStatus = newAvailability ? "disponible" : "no disponible";
 
     try {
       await updateDoc(doc(db, "products", id), {
         available: newAvailability,
-        status: newStatus
+        status: newStatus,
       });
-      console.log("Disponibilidad y estado actualizados con éxito para el producto:", id);
-      fetchProducts(); 
+      fetchProducts();
     } catch (error) {
-      console.error("Error al cambiar la disponibilidad y estado:", error);
+      console.error("Error al cambiar disponibilidad:", error);
       alert("Hubo un error al actualizar la disponibilidad.");
     }
   };
@@ -65,59 +87,107 @@ function ProductList() {
     fetchProducts();
   }, []);
 
+  // 4) Actualizar producto e imágenes
   const handleUpdate = async (product) => {
-    const { id, ...rest } = product;
+    const { id, images: oldImages = [], ...rest } = product;
     try {
-      let updatedImageUrl = rest.image; // Mantener la imagen actual por defecto
-
-      // Si se seleccionó un nuevo archivo para editar
-      if (selectedFileForEdit) {
-        // Opcional: Borrar la imagen antigua de Storage si existe
-        if (product.image && (product.image.startsWith("gs://") || product.image.startsWith("http"))) {
-            const oldImageRef = ref(storage, product.image);
-            await deleteObject(oldImageRef).catch(error => {
-                console.warn("Error al borrar imagen antigua de Storage (puede que no exista):", error);
-            });
-        }
-
-        // Subir la nueva imagen a Cloud Storage
-        const user = auth.currentUser;
-        if (!user) {
-            alert("Debes estar autenticado para actualizar la imagen.");
-            return;
-        }
-        const storageRef = ref(storage, `product_images/${user.uid}/${Date.now()}_${selectedFileForEdit.name}`);
-        const uploadResult = await uploadBytes(storageRef, selectedFileForEdit);
-        updatedImageUrl = await getDownloadURL(uploadResult.ref);
+      const user = auth.currentUser;
+      if (!user) {
+        alert("Debes estar autenticado para actualizar el producto.");
+        return;
       }
 
-      // Prepara los datos para la actualización
+      let updatedImageUrls = oldImages;
+
+      if (
+        Array.isArray(selectedFilesForEdit) &&
+        selectedFilesForEdit.length > 0
+      ) {
+        // Borrar antiguas
+        const deleteOld = oldImages.map((url) => {
+          if (
+            typeof url === "string" &&
+            (url.startsWith("gs://") || url.startsWith("http"))
+          ) {
+            const oldRef = ref(storage, url);
+            return deleteObject(oldRef).catch((e) => {
+              console.warn("No se pudo borrar imagen antigua:", e);
+              return null;
+            });
+          }
+          return Promise.resolve();
+        });
+        await Promise.all(deleteOld);
+
+        // Subir nuevas
+        const uploadPromises = selectedFilesForEdit.map((file) => {
+          const storageRef = ref(
+            storage,
+            `product_images/${user.uid}/${Date.now()}_${file.name}`
+          );
+          return uploadBytes(storageRef, file).then((res) =>
+            getDownloadURL(res.ref)
+          );
+        });
+        updatedImageUrls = await Promise.all(uploadPromises);
+      }
+
+      const tagsArray = Array.isArray(rest.tags)
+        ? rest.tags
+        : (typeof rest.tags === "string" ? rest.tags.split(",") : [])
+            .map((t) => t.trim())
+            .filter((t) => t !== "");
+
       const dataToUpdate = {
-        ...rest,
+        name: rest.name,
         price: parseFloat(rest.price) || 0,
         discount: parseFloat(rest.discount) || 0,
-        image: updatedImageUrl, // Usa la nueva URL si se subió, o la existente
-        tags: Array.isArray(rest.tags) ? rest.tags : rest.tags.split(",").map(tag => tag.trim()).filter(tag => tag !== "")
+        description: rest.description,
+        tags: tagsArray,
+        coverImage:
+          updatedImageUrls.length > 0 ? updatedImageUrls[0] : "",
+        images: updatedImageUrls,
+        available: rest.available,
+        status: rest.available ? "disponible" : "no disponible",
       };
 
       await updateDoc(doc(db, "products", id), dataToUpdate);
       fetchProducts();
-      setSelected(null); // cerrar modal al guardar
-      setSelectedFileForEdit(null); // Limpiar el archivo de edición
+      setSelected(null);
+      setSelectedFilesForEdit([]);
     } catch (err) {
       console.error("Error al actualizar producto:", err);
       alert("Hubo un error al actualizar el producto: " + err.message);
     }
   };
 
-
   return (
     <div className="product-grid">
       {products.map((p) => (
-        <div key={p.id} className="product-card" onClick={() => setSelected(p)}>
-          <img src={p.image} alt={p.name} className="card-image" />
-          <h4>{p.name}</h4>
-          <p>
+        <div
+          key={p.id}
+          className="product-card"
+          onClick={() => setSelected(p)}
+        >
+          {/** 5.1) Mostrar la portada grande arriba */}
+          <img src={p.coverImage} alt={p.name} className="card-image" />
+
+          {/** 5.2) Miniaturas de todas las imágenes (excepto portada) abajo */}
+          {Array.isArray(p.images) && p.images.length > 1 && (
+            <div className="thumbnail-container">
+              {p.images.slice(1).map((url, idx) => (
+                <img
+                  key={idx}
+                  src={url}
+                  alt={`${p.name} miniatura ${idx + 1}`}
+                  className="thumbnail-image"
+                />
+              ))}
+            </div>
+          )}
+
+          <h4 className="product-title">{p.name}</h4>
+          <p className="product-price">
             ${p.price} - {p.discount}%
           </p>
 
@@ -136,66 +206,119 @@ function ProductList() {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                handleDelete(p.id, p.image); // Pasar la URL de la imagen al borrar
+                handleDelete(p.id, p.images);
               }}
               className="delete-btn"
             >
-              <MdDelete size={30} color="red" />
+              <MdDelete size={24} color="red" />
             </button>
           </div>
         </div>
       ))}
 
       {selected && (
-        <div className="modal-overlay" onClick={() => { setSelected(null); setSelectedFileForEdit(null); }}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="image-edit">
-              <img
-                src={selectedFileForEdit ? URL.createObjectURL(selectedFileForEdit) : selected.image} // Mostrar la nueva previa o la existente
-                alt={selected.name}
-                className="modal-image"
-              />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  if (file) {
-                    setSelectedFileForEdit(file); // Guardar el objeto File para la subida
-                  }
-                }}
-              />
-            </div>
+        <div
+          className="modal-overlay"
+          onClick={() => {
+            setSelected(null);
+            setSelectedFilesForEdit([]);
+          }}
+        >
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {Array.isArray(selected.images) &&
+              selected.images.length > 0 && (
+                <div className="edit-image-carousel">
+                  {selected.images.map((url, idx) => (
+                    <div key={idx} className="carousel-item-edit">
+                      <img
+                        src={url}
+                        alt={`${selected.name} ${idx + 1}`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+            <label>
+              <strong>Cambiar imágenes (múltiple selección):</strong>
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => {
+                const files = Array.from(e.target.files);
+                setSelectedFilesForEdit(files);
+              }}
+            />
+
+            {selectedFilesForEdit.length > 0 && (
+              <div className="edit-preview-container">
+                {selectedFilesForEdit.map((file, i) => {
+                  const objectUrl = URL.createObjectURL(file);
+                  return (
+                    <div key={i} className="preview-item">
+                      <img
+                        src={objectUrl}
+                        alt={`Preview ${i + 1}`}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             <input
+              type="text"
               value={selected.name}
               onChange={(e) =>
                 setSelected({ ...selected, name: e.target.value })
               }
+              placeholder="Nombre"
             />
             <input
+              type="number"
+              step="0.01"
               value={selected.price}
               onChange={(e) =>
                 setSelected({ ...selected, price: e.target.value })
               }
-              type="number" // Asegurar que sea tipo número
-              step="0.01"
+              placeholder="Precio"
             />
             <input
+              type="number"
+              min="0"
+              max="100"
               value={selected.discount}
               onChange={(e) =>
                 setSelected({ ...selected, discount: e.target.value })
               }
-              type="number" // Asegurar que sea tipo número
-              min="0"
-              max="100"
+              placeholder="Descuento %"
             />
             <textarea
+              rows="3"
               value={selected.description}
               onChange={(e) =>
                 setSelected({ ...selected, description: e.target.value })
               }
+              placeholder="Descripción"
             />
+            <input
+              type="text"
+              value={
+                Array.isArray(selected.tags)
+                  ? selected.tags.join(", ")
+                  : selected.tags || ""
+              }
+              onChange={(e) =>
+                setSelected({ ...selected, tags: e.target.value })
+              }
+              placeholder="Etiquetas (separadas por comas)"
+            />
+
             <select
               value={selected.available ? "true" : "false"}
               onChange={(e) =>
@@ -208,8 +331,18 @@ function ProductList() {
               <option value="true">Disponible</option>
               <option value="false">No disponible</option>
             </select>
-            <button onClick={() => handleUpdate(selected)}>Guardar</button>
-            <button onClick={() => { setSelected(null); setSelectedFileForEdit(null); }}>Cancelar</button>
+
+            <div className="modal-buttons">
+              <button onClick={() => handleUpdate(selected)}>Guardar</button>
+              <button
+                onClick={() => {
+                  setSelected(null);
+                  setSelectedFilesForEdit([]);
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
         </div>
       )}
