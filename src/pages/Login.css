@@ -14,6 +14,8 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
+  /* Añade esto para centrar horizontalmente los elementos dentro del formulario */
+  align-items: center; 
 }
 
 .login-form h2 {
@@ -21,8 +23,12 @@
 }
 
 .login-form input {
+  width: 95%; /* Puedes mantener este width si lo deseas, pero considera que el botón es del 85% */
   padding: 10px;
   font-size: 14px;
+  position: relative;
+  margin: 0 auto;
+
 }
 
 .login-form button {
@@ -31,4 +37,37 @@
   color: white;
   border: none;
   cursor: pointer;
+  width: 85%;
+  /* Con align-items: center en el formulario, estas líneas no son estrictamente necesarias,
+     pero no hacen daño si quieres que el botón se comporte como un bloque centrado. */
+  display: block; 
+  margin: 0 auto;
+}
+
+/* Estilo para el contenedor del input y el ojo */
+.password-input-container {
+  position: relative;
+  margin: 0 auto;
+  width: 99%; /* Asegúrate de que este ancho sea consistente con el input de email, por ejemplo */
+}
+
+/* Estilo para el input de contraseña */
+.password-input-container input {
+  width: calc(100% - 40px); /* Ajusta el ancho para que el padding no lo desborde */
+  padding: 10px 40px 10px 10px; /* Arriba, derecha (para icono), abajo, izquierda */
+  font-size: 14px;
+  
+}
+
+/* Estilo para el icono del ojo */
+.password-input-container .password-toggle-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #4F5B66;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
