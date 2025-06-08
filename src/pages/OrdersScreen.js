@@ -1,6 +1,6 @@
 // src/screens/OrdersScreen.js
 import React from 'react';
-import './OrdersScreen.css'; // Si necesitas CSS para esta pantalla
+import './Styles/OrdersScreen.css'; // Si necesitas CSS para esta pantalla
 
 function OrdersScreen() {
   return (

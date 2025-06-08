@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./NotificationModal.css"; // Estilos para el modal
+import "../Styles/NotificationModal.css"; // Estilos para el modal
 
 function NotificationModal({ isOpen, onClose, onSend, userName }) {
   const [message, setMessage] = useState("");

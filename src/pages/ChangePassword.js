@@ -7,7 +7,7 @@ import {
   updatePassword,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import "./ChangePassword.css";
+import "../Styles/ChangePassword.css";
 
 function ChangePassword() {
   const [step, setStep] = useState(1);

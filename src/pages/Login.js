@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import "./Login.css";
+import "../Styles/Login.css";
 // Importa los iconos de react-icons. Aquí usamos 'FaEye' y 'FaEyeSlash' de Font Awesome.
 import { FaEye, FaEyeSlash } from "react-icons/fa"; 
 

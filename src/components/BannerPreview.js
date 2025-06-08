@@ -1,6 +1,6 @@
 // src/components/BannerPreview.js
 import React from "react";
-import "./BannerPreview.css"; // Crea este archivo CSS
+import "./Styles/BannerPreview.css"; // Crea este archivo CSS
 
 function BannerPreview({ banners }) {
   return (

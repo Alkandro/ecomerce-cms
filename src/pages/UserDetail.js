@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"; // Para obtener el ID del usuario 
 import MainLayout from "../layouts/MainLayout";
 import { doc, getDoc, collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
-import "./UserDetail.css"; // Estilos para la página de detalles
+import "../Styles/UserDetail.css"; // Estilos para la página de detalles
 import NotificationModal from "./NotificationModal"; // Modal para notificaciones
 
 function UserDetail() {

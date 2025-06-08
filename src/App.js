@@ -17,7 +17,7 @@ import Orders from "./pages/Orders";
 // ¡Importa el nuevo componente para la pantalla de Términos y Condiciones!
 import TermsConditionsScreen from "./components/TermsConditionsScreen"; // Asegúrate de que esta ruta sea correcta
 import UserDetail from "./pages/UserDetail";
-import "./App.css";
+import "./Styles/App.css";
 
 // Componente auxiliar para redirigir desde la raíz
 function RootRedirect() {

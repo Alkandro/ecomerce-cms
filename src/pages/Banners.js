@@ -2,7 +2,7 @@
 import React from "react";
 import MainLayout from "../layouts/MainLayout";
 import BannerForm from "../components/BannerForm";
-import "./Banners.css";
+import "../Styles/Banners.css";
 
 function Banners() {
   return (

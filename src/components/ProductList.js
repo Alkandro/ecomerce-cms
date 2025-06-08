@@ -13,7 +13,7 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { db, auth, storage } from "../firebase/config";
-import "./ProductList.css";
+import "../Styles/ProductList.css";
 import { MdDelete } from "react-icons/md";
 
 function ProductList() {

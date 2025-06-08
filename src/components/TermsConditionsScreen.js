@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar'; // Asegúrate de que la ruta a Sidebar sea correcta
 import { termsConditionsService } from '../pages/termsConditionsService'; // Crearemos este servicio en el siguiente paso
-import './TermsConditionsScreen.css'; // Crearemos este CSS también
+import '../Styles/TermsConditionsScreen.css'; // Crearemos este CSS también
 
 function TermsConditionsScreen() {
   const [termsContent, setTermsContent] = useState('');

@@ -2,7 +2,7 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
-import "./Sidebar.css";
+import "../Styles/Sidebar.css";
 
 function Sidebar() {
   const location = useLocation();

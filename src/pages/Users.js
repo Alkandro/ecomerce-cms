@@ -3,7 +3,7 @@ import MainLayout from "../layouts/MainLayout";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { useNavigate } from "react-router-dom"; // Importa useNavigate para la navegación
-import "./Users.css"; // Crearemos este CSS para el estilo de la tabla
+import "../Styles/Users.css"; // Crearemos este CSS para el estilo de la tabla
 
 function Users() {
   const [users, setUsers] = useState([]);

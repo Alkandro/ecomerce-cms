@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback } from 'react'; // Importa useCallback
 import { orderService } from '../pages/orderService';
 import Sidebar from '../components/Sidebar';
-import './Orders.css';
+import '../Styles/Orders.css';
 
 function Orders() {
     const [orders, setOrders] = useState([]);
