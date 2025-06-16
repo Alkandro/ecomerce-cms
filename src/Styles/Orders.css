@@ -95,3 +95,7 @@
     color: #6c757d;
     text-align: center;
   }
+  .payment-status {
+    margin-top: 4px;
+    font-size: 14px;
+  }
