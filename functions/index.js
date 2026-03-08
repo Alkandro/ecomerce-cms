@@ -1,75 +1,67 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-// admin.initializeApp();
 
-// exports.createPaymentIntent = functions.https.onRequest(async (req, res) => {
-//   try {
-//     const { amount } = req.body;
-
-//     if (!amount) {
-//       return res.status(400).send({ error: 'Amount is required' });
-//     }
-
-//     const customer = await stripe.customers.create();
-
-//     const ephemeralKey = await stripe.ephemeralKeys.create(
-//       { customer: customer.id },
-//       { apiVersion: '2023-10-16' }
-//     );
-
-//     const paymentIntent = await stripe.paymentIntents.create({
-//       amount, // en centavos
-//       currency: 'usd',
-//       customer: customer.id,
-//       automatic_payment_methods: { enabled: true },
-//     });
-
-//     res.status(200).send({
-//       paymentIntent: paymentIntent.client_secret,
-//       ephemeralKey: ephemeralKey.secret,
-//       customer: customer.id,
-//     });
-//   } catch (error) {
-//     console.error('Error en createPaymentIntent:', error);
-//     res.status(500).send({ error: error.message });
-//   }
-// });
 admin.initializeApp();
 
 exports.createPaymentIntent = functions.https.onRequest(async (req, res) => {
+  // Permite CORS para desarrollo
+  res.set("Access-Control-Allow-Origin", "*");
+  if (req.method === "OPTIONS") {
+    res.set("Access-Control-Allow-Methods", "POST");
+    res.set("Access-Control-Allow-Headers", "Content-Type");
+    return res.status(204).send("");
+  }
+
   try {
-    const { amount, customerId } = req.body;
+    const { amount, customerId, userId } = req.body;
 
     if (!amount) {
       return res.status(400).send({ error: "Amount is required" });
     }
 
-    let customer = null;
+    let customer;
 
     if (customerId) {
-      // Usar el customerId proporcionado
-      customer = await stripe.customers.retrieve(customerId);
+      // ── Usuario ya tiene customer en Stripe → reutilizarlo ────────────
+      try {
+        customer = await stripe.customers.retrieve(customerId);
+        // Si fue eliminado en Stripe, crear uno nuevo
+        if (customer.deleted) throw new Error("Customer deleted");
+      } catch {
+        customer = await stripe.customers.create();
+      }
     } else {
-      // Si no se proporciona customerId, creamos uno nuevo
+      // ── Primera compra → crear customer nuevo en Stripe ───────────────
       customer = await stripe.customers.create();
+
+      // ✅ CLAVE: guardar el customerId en Firestore para futuras compras
+      // Así la próxima vez el frontend lo envía y reutilizamos el mismo customer
+      if (userId) {
+        await admin
+          .firestore()
+          .collection("users")
+          .doc(userId)
+          .update({ stripeCustomerId: customer.id });
+      }
     }
 
-    // Crear ephemeralKey para ese customer
+    // Ephemeral key — permite al Payment Sheet leer/guardar métodos de pago
     const ephemeralKey = await stripe.ephemeralKeys.create(
       { customer: customer.id },
       { apiVersion: "2023-10-16" },
     );
 
-    // Crear PaymentIntent asociado al customer
+    // PaymentIntent
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
-      currency: "usd",
+      currency: "jpy", // ✅ Yen japonés (sin decimales)
       customer: customer.id,
       automatic_payment_methods: { enabled: true },
+      // Guardar el método de pago para futuras compras
+      setup_future_usage: "off_session",
     });
 
-    // Enviar info al frontend
     res.status(200).send({
       paymentIntent: paymentIntent.client_secret,
       ephemeralKey: ephemeralKey.secret,
